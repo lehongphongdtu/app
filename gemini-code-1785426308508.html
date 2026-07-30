@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Quản Lý Công Thợ</title>
+  
+  <!-- Cấu hình PWA để chạy full màn hình & có Icon trên iPhone -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Công Thợ">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3062/3062534.png">
+
+  <style>
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    body { background: #f4f6f8; margin: 0; padding: 15px; color: #333; }
+    h2 { text-align: center; color: #007aff; margin-top: 10px; }
+    .card { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 15px; }
+    label { font-weight: bold; font-size: 14px; display: block; margin-top: 10px; }
+    input, textarea, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
+    .btn { background: #007aff; color: #fff; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; }
+    .btn-danger { background: #ff3b30; }
+    .btn-warning { background: #ff9500; }
+    .btn-success { background: #34c759; }
+    .btn-group { display: flex; gap: 8px; margin-top: 10px; }
+    .btn-group button { flex: 1; margin-top: 0; }
+    .item { border-bottom: 1px solid #eee; padding: 10px 0; }
+    .item:last-child { border-bottom: none; }
+    .item-img { width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 8px; }
+    .gps-info { font-size: 12px; color: #666; font-style: italic; }
+    .total-box { background: #e5f1ff; padding: 12px; border-radius: 8px; font-weight: bold; color: #0056b3; font-size: 16px; margin-bottom: 10px; }
+    #previewImg { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; display: none; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <h2>👷 Quản Lý Công Thợ</h2>
+
+  <!-- FORM NHẬP / SỬA -->
+  <div class="card">
+    <h3 id="formTitle" style="margin:0">Thêm bản ghi mới</h3>
+    <input type="hidden" id="editId">
+
+    <label>Tên thợ:</label>
+    <input type="text" id="tenTho" placeholder="Ví dụ: Nguyễn Văn A">
+
+    <label>Tiền công (VNĐ):</label>
+    <input type="number" id="tienCong" placeholder="Ví dụ: 500000">
+
+    <label>Nội dung công việc:</label>
+    <textarea id="noiDung" rows="2" placeholder="Ví dụ: Đổ bê tông móng..."></textarea>
+
+    <label>Chụp ảnh công trình/sự kiện:</label>
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="previewImage(event)">
+    <img id="previewImg" src="" alt="Ảnh xem trước">
+
+    <button class="btn" id="btnSave" onclick="saveRecord()">💾 Lưu Bản Ghi</button>
+    <button class="btn btn-warning" id="btnCancelEdit" style="display:none;" onclick="resetForm()">Hủy Sửa</button>
+  </div>
+
+  <!-- BỘ LỌC & THỐNG KÊ -->
+  <div class="card">
+    <h3>🔍 Lọc & Thống kê</h3>
+    <label>Lọc theo thợ:</label>
+    <select id="filterTho" onchange="renderList()">
+      <option value="">-- Tất cả thợ --</option>
+    </select>
+    <div class="total-box" style="margin-top: 10px;">
+      Tổng tiền công: <span id="totalMoney">0</span> VNĐ
+    </div>
+  </div>
+
+  <!-- DANH SÁCH -->
+  <div class="card">
+    <h3>📋 Danh sách nhật ký</h3>
+    <div id="dataList"></div>
+  </div>
+
+  <!-- BACKUP & RESTORE -->
+  <div class="card">
+    <h3>☁️ Sao lưu & Khôi phục</h3>
+    <p style="font-size: 13px; color: #666;">Tải file dữ liệu về máy để cất giữ hoặc chuyển sang iPhone mới.</p>
+    <div class="btn-group">
+      <button class="btn btn-success" onclick="exportData()">📤 Tải Backup</button>
+      <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">📥 Nhập Backup</button>
+    </div>
+    <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+  </div>
+
+  <script>
+    let db = JSON.parse(localStorage.getItem("CONG_THO_DB")) || [];
+    let currentGeo = { lat: null, lng: null };
+
+    // Tự động lấy GPS khi mở trang
+    navigator.geolocation.getCurrentPosition(
+      pos => { currentGeo = { lat: pos.coords.latitude.toFixed(5), lng: pos.coords.longitude.toFixed(5) }; },
+      err => console.log("Không lấy được GPS"),
+      { enableHighAccuracy: true }
+    );
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = document.getElementById("previewImg");
+          img.src = e.target.result;
+          img.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function saveRecord() {
+      const editId = document.getElementById("editId").value;
+      const tenTho = document.getElementById("tenTho").value.trim();
+      const tienCong = Number(document.getElementById("tienCong").value) || 0;
+      const noiDung = document.getElementById("noiDung").value.trim();
+      const imgSrc = document.getElementById("previewImg").src;
+
+      if (!tenTho) return alert("Vui lòng nhập tên thợ!");
+
+      if (editId) {
+        // Cập nhật
+        const idx = db.findIndex(item => item.id == editId);
+        if (idx !== -1) {
+          db[idx].tenTho = tenTho;
+          db[idx].tienCong = tienCong;
+          db[idx].noiDung = noiDung;
+          if (imgSrc && !imgSrc.endsWith("#")) db[idx].hinhAnh = imgSrc;
+        }
+      } else {
+        // Thêm mới
+        const now = new Date();
+        const newItem = {
+          id: Date.now(),
+          ngay: now.toLocaleDateString('vi-VN') + " " + now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}),
+          tenTho,
+          tienCong,
+          noiDung,
+          hinhAnh: imgSrc.endsWith("#") ? "" : imgSrc,
+          gps: currentGeo
+        };
+        db.unshift(newItem);
+      }
+
+      localStorage.setItem("CONG_THO_DB", JSON.stringify(db));
+      resetForm();
+      renderList();
+      alert("Đã lưu thành công!");
+    }
+
+    function resetForm() {
+      document.getElementById("editId").value = "";
+      document.getElementById("tenTho").value = "";
+      document.getElementById("tienCong").value = "";
+      document.getElementById("noiDung").value = "";
+      document.getElementById("cameraInput").value = "";
+      document.getElementById("previewImg").style.display = "none";
+      document.getElementById("previewImg").src = "";
+      document.getElementById("formTitle").innerText = "Thêm bản ghi mới";
+      document.getElementById("btnCancelEdit").style.display = "none";
+    }
+
+    function renderList() {
+      const listEl = document.getElementById("dataList");
+      const filterTho = document.getElementById("filterTho").value;
+      const filterSelect = document.getElementById("filterTho");
+
+      // Cập nhật danh sách thợ vào ô lọc
+      const dsTho = [...new Set(db.map(i => i.tenTho))];
+      filterSelect.innerHTML = '<option value="">-- Tất cả thợ --</option>' + 
+        dsTho.map(t => `<option value="${t}" ${t === filterTho ? 'selected' : ''}>${t}</option>`).join('');
+
+      let filteredDb = filterTho ? db.filter(i => i.tenTho === filterTho) : db;
+      
+      // Tính tổng tiền
+      const total = filteredDb.reduce((sum, i) => sum + Number(i.tienCong), 0);
+      document.getElementById("totalMoney").innerText = total.toLocaleString('vi-VN');
+
+      if (filteredDb.length === 0) {
+        listEl.innerHTML = "<p style='text-align:center; color:#999;'>Chưa có dữ liệu.</p>";
+        return;
+      }
+
+      listEl.innerHTML = filteredDb.map(item => `
+        <div class="item">
+          <strong>👤 ${item.tenTho}</strong> - <span style="color:#28a745; font-weight:bold;">${item.tienCong.toLocaleString('vi-VN')} đ</span>
+          <br><small style="color:#666;">📅 ${item.ngay}</small>
+          ${item.gps.lat ? `<br><span class="gps-info">📍 GPS: ${item.gps.lat}, ${item.gps.lng}</span>` : ''}
+          <p style="margin: 5px 0;">📝 ${item.noiDung || 'Không có ghi chú'}</p>
+          ${item.hinhAnh ? `<img src="${item.hinhAnh}" class="item-img">` : ''}
+          <div class="btn-group">
+            <button class="btn btn-warning" onclick="editRecord(${item.id})">✏️ Sửa</button>
+            <button class="btn btn-danger" onclick="deleteRecord(${item.id})">🗑️ Xóa</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function editRecord(id) {
+      const item = db.find(i => i.id == id);
+      if (!item) return;
+      document.getElementById("editId").value = item.id;
+      document.getElementById("tenTho").value = item.tenTho;
+      document.getElementById("tienCong").value = item.tienCong;
+      document.getElementById("noiDung").value = item.noiDung;
+      if (item.hinhAnh) {
+        const img = document.getElementById("previewImg");
+        img.src = item.hinhAnh;
+        img.style.display = "block";
+      }
+      document.getElementById("formTitle").innerText = "Sửa bản ghi";
+      document.getElementById("btnCancelEdit").style.display = "block";
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function deleteRecord(id) {
+      if (confirm("Bạn có chắc chắn muốn xóa bản ghi này?")) {
+        db = db.filter(i => i.id != id);
+        localStorage.setItem("CONG_THO_DB", JSON.stringify(db));
+        renderList();
+      }
+    }
+
+    function exportData() {
+      if (db.length === 0) return alert("Chưa có dữ liệu để xuất!");
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = `Backup_CongTho_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+    }
+
+    function importData(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          const imported = JSON.parse(event.target.result);
+          if (Array.isArray(imported)) {
+            db = imported;
+            localStorage.setItem("CONG_THO_DB", JSON.stringify(db));
+            renderList();
+            alert("Đã khôi phục dữ liệu thành công!");
+          } else { alert("File backup không hợp lệ!"); }
+        } catch (err) { alert("Lỗi khi đọc file!"); }
+      };
+      reader.readAsText(file);
+    }
+
+    renderList();
+  </script>
+</body>
+</html>
