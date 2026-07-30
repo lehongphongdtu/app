@@ -29,59 +29,121 @@
     .gps-info { font-size: 12px; color: #666; font-style: italic; }
     .total-box { background: #e5f1ff; padding: 12px; border-radius: 8px; font-weight: bold; color: #0056b3; font-size: 16px; margin-bottom: 10px; }
     #previewImg { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; display: none; margin-top: 8px; }
+    
+    /* Giao diện Login Overlay */
+    #loginOverlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #f4f6f8; z-index: 9999; display: flex;
+      align-items: center; justify-content: center; padding: 20px;
+    }
+    .login-box { background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); width: 100%; max-width: 350px; }
+    .header-bar { display: flex; justify-content: space-between; align-items: center; }
+    .btn-logout { background: #8e8e93; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <h2>👷 Quản Lý Công Thợ</h2>
+  <!-- MÀN HÌNH ĐĂNG NHẬP -->
+  <div id="loginOverlay">
+    <div class="login-box">
+      <h2 style="margin-top:0;">🔒 Đăng Nhập</h2>
+      <p style="text-align:center; font-size: 13px; color: #666;">Nhập tài khoản để tiếp tục</p>
+      
+      <label>Tên đăng nhập:</label>
+      <input type="text" id="loginUser" placeholder="Nhập admin">
 
-  <div class="card">
-    <h3 id="formTitle" style="margin:0">Thêm bản ghi mới</h3>
-    <input type="hidden" id="editId">
+      <label>Mật khẩu:</label>
+      <input type="password" id="loginPass" placeholder="Nhập mật khẩu">
 
-    <label>Tên thợ (*):</label>
-    <input type="text" id="tenTho" placeholder="Ví dụ: Nguyễn Văn A">
-
-    <label>Tiền công (VNĐ):</label>
-    <input type="number" id="tienCong" placeholder="Ví dụ: 500000">
-
-    <label>Nội dung công việc:</label>
-    <textarea id="noiDung" rows="2" placeholder="Ví dụ: Thi công đường điện..."></textarea>
-
-    <label>Chụp ảnh công trình/sự kiện:</label>
-    <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="processAndPreviewImage(event)">
-    <img id="previewImg" src="" alt="Ảnh xem trước">
-
-    <button class="btn" id="btnSave" onclick="saveRecord()">💾 Lưu Bản Ghi</button>
-    <button class="btn btn-warning" id="btnCancelEdit" style="display:none;" onclick="resetForm()">Hủy Sửa</button>
-  </div>
-
-  <div class="card">
-    <h3>🔍 Lọc & Thống kê</h3>
-    <label>Lọc theo thợ:</label>
-    <select id="filterTho" onchange="renderList()">
-      <option value="">-- Tất cả thợ --</option>
-    </select>
-    <div class="total-box" style="margin-top: 10px;">
-      Tổng tiền công: <span id="totalMoney">0</span> VNĐ
+      <button class="btn" onclick="checkLogin()">Đăng Nhập</button>
     </div>
   </div>
 
-  <div class="card">
-    <h3>📋 Danh sách nhật ký</h3>
-    <div id="dataList"></div>
-  </div>
-
-  <div class="card">
-    <h3>☁️ Sao lưu & Khôi phục</h3>
-    <div class="btn-group">
-      <button class="btn btn-success" onclick="exportData()">📤 Tải Backup</button>
-      <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">📥 Nhập Backup</button>
+  <!-- NỘI DUNG ỨNG DỤNG (ẨN KHI CHƯA LOGIN) -->
+  <div id="mainApp" style="display:none;">
+    <div class="header-bar">
+      <h2 style="margin:0;">👷 Quản Lý Công Thợ</h2>
+      <button class="btn-logout" onclick="logout()">🔒 Khóa App</button>
     </div>
-    <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+
+    <div class="card" style="margin-top: 15px;">
+      <h3 id="formTitle" style="margin:0">Thêm bản ghi mới</h3>
+      <input type="hidden" id="editId">
+
+      <label>Tên thợ (*):</label>
+      <input type="text" id="tenTho" placeholder="Ví dụ: Nguyễn Văn A">
+
+      <label>Tiền công (VNĐ):</label>
+      <input type="number" id="tienCong" placeholder="Ví dụ: 500000">
+
+      <label>Nội dung công việc:</label>
+      <textarea id="noiDung" rows="2" placeholder="Ví dụ: Thi công đường điện..."></textarea>
+
+      <label>Chụp ảnh công trình/sự kiện:</label>
+      <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="processAndPreviewImage(event)">
+      <img id="previewImg" src="" alt="Ảnh xem trước">
+
+      <button class="btn" id="btnSave" onclick="saveRecord()">💾 Lưu Bản Ghi</button>
+      <button class="btn btn-warning" id="btnCancelEdit" style="display:none;" onclick="resetForm()">Hủy Sửa</button>
+    </div>
+
+    <div class="card">
+      <h3>🔍 Lọc & Thống kê</h3>
+      <label>Lọc theo thợ:</label>
+      <select id="filterTho" onchange="renderList()">
+        <option value="">-- Tất cả thợ --</option>
+      </select>
+      <div class="total-box" style="margin-top: 10px;">
+        Tổng tiền công: <span id="totalMoney">0</span> VNĐ
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📋 Danh sách nhật ký</h3>
+      <div id="dataList"></div>
+    </div>
+
+    <div class="card">
+      <h3>☁️ Sao lưu & Khôi phục</h3>
+      <div class="btn-group">
+        <button class="btn btn-success" onclick="exportData()">📤 Tải Backup</button>
+        <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">📥 Nhập Backup</button>
+      </div>
+      <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
+    </div>
   </div>
 
   <script>
+    // KIỂM TRA ĐĂNG NHẬP
+    function checkLogin() {
+      const u = document.getElementById("loginUser").value.trim();
+      const p = document.getElementById("loginPass").value.trim();
+
+      if (u === "admin" && p === "Hanhphong2025") {
+        sessionStorage.setItem("IS_LOGGED_IN", "true");
+        showMainApp();
+      } else {
+        alert("Tên đăng nhập hoặc mật khẩu không đúng!");
+      }
+    }
+
+    function showMainApp() {
+      document.getElementById("loginOverlay").style.display = "none";
+      document.getElementById("mainApp").style.display = "block";
+      renderList();
+    }
+
+    function logout() {
+      sessionStorage.removeItem("IS_LOGGED_IN");
+      location.reload();
+    }
+
+    // Tự động vào thẳng nếu đã đăng nhập trong phiên làm việc
+    if (sessionStorage.getItem("IS_LOGGED_IN") === "true") {
+      showMainApp();
+    }
+
+    // LOGIC XỬ LÝ DỮ LIỆU CÔNG THỢ
     let db = [];
     try {
       db = JSON.parse(localStorage.getItem("CONG_THO_DB")) || [];
@@ -97,7 +159,6 @@
       );
     }
 
-    // HÀM TỰ ĐỘNG NÉN VÀ THU NHỎ ẢNH
     function processAndPreviewImage(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -107,7 +168,7 @@
         const img = new Image();
         img.onload = function() {
           const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 800; // Giới hạn chiều rộng ảnh còn 800px
+          const MAX_WIDTH = 800;
           let width = img.width;
           let height = img.height;
 
@@ -122,7 +183,6 @@
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
 
-          // Nén chất lượng ảnh còn 60%
           const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
 
           const previewEl = document.getElementById("previewImg");
@@ -191,6 +251,8 @@
     function renderList() {
       const listEl = document.getElementById("dataList");
       const filterSelect = document.getElementById("filterTho");
+      if (!listEl || !filterSelect) return;
+      
       const filterTho = filterSelect.value;
 
       const dsTho = [...new Set(db.map(i => i.tenTho))];
@@ -273,8 +335,6 @@
       };
       reader.readAsText(file);
     }
-
-    renderList();
   </script>
 </body>
 </html>
