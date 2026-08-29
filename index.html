@@ -23,9 +23,7 @@
       --border: #e5e5ea;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -36,43 +34,19 @@
       color: var(--text-main);
     }
 
-    /* GIAO DIỆN ĐĂNG NHẬP */
     #login_overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: var(--bg);
-      z-index: 9999;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg); z-index: 9999;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
     }
     .login-card {
-      background: var(--card-bg);
-      width: 100%;
-      max-width: 360px;
-      padding: 24px;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
-      text-align: center;
+      background: var(--card-bg); width: 100%; max-width: 360px; padding: 24px;
+      border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); text-align: center;
     }
-    .login-card i.login-icon {
-      font-size: 48px;
-      color: var(--primary);
-      margin-bottom: 12px;
-    }
-    .login-card h3 {
-      margin: 0 0 16px 0;
-      font-size: 20px;
-    }
-    .login-err {
-      color: var(--danger);
-      font-size: 13px;
-      margin-top: 8px;
-      display: none;
-    }
+    .login-card i.login-icon { font-size: 48px; color: var(--primary); margin-bottom: 12px; }
+    .login-card h3 { margin: 0 0 16px 0; font-size: 20px; }
+    .login-err { color: var(--danger); font-size: 13px; margin-top: 8px; display: none; }
 
-    /* APP HEADER */
     .app-header { text-align: center; padding: 6px 0; position: relative; }
     .app-header h2 { margin: 0; font-size: 20px; font-weight: 700; }
     .btn-logout {
@@ -81,43 +55,21 @@
     }
 
     .card {
-      background: var(--card-bg);
-      border-radius: 16px;
-      padding: 14px;
-      margin-bottom: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      background: var(--card-bg); border-radius: 16px; padding: 14px;
+      margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
 
     .form-group { position: relative; margin-bottom: 8px; width: 100%; }
     .form-group i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-sub); z-index: 2; pointer-events: none; }
     
     .form-control {
-      width: 100%;
-      height: 44px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      padding: 0 12px 0 38px;
-      font-size: 15px;
-      background: #fafafa;
-      outline: none;
-      color: var(--text-main);
-      -webkit-appearance: none;
-      appearance: none;
+      width: 100%; height: 44px; border-radius: 10px; border: 1px solid var(--border);
+      padding: 0 12px 0 38px; font-size: 15px; background: #fafafa; outline: none;
+      color: var(--text-main); -webkit-appearance: none; appearance: none;
     }
 
-    /* FIX SỰ CỐ TRÀN VÀ VỠ KHUNG DẠNG DATE TRÊN iOS */
-    input[type="date"].form-control {
-      display: block;
-      min-height: 44px;
-      line-height: 44px;
-      padding-right: 10px;
-      background-color: #fafafa;
-    }
-    input[type="date"]::-webkit-inner-spin-button,
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      opacity: 0.6;
-      cursor: pointer;
-    }
+    input[type="date"].form-control { display: block; min-height: 44px; line-height: 44px; padding-right: 10px; background-color: #fafafa; }
+    input[type="date"]::-webkit-inner-spin-button, input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0.6; cursor: pointer; }
 
     .btn {
       width: 100%; height: 44px; border-radius: 10px; border: none;
@@ -129,23 +81,11 @@
     .btn-success { background: var(--success); color: white; }
     .btn-reload { background: #e5e5ea; color: var(--text-main); height: 38px; font-size: 13px; margin-bottom: 10px; }
 
-    .summary-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      margin-bottom: 12px;
-    }
-    .stat-box {
-      border-radius: 10px;
-      padding: 8px 4px;
-      text-align: center;
-      color: white;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
+    .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 12px; }
+    .stat-box { border-radius: 10px; padding: 8px 4px; text-align: center; color: white; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
     .stat-box.total { background: linear-gradient(135deg, #5856D6, #3634A3); }
     .stat-box.done { background: linear-gradient(135deg, #34C759, #248A3D); }
     .stat-box.pending { background: linear-gradient(135deg, #FF9500, #C67300); }
-    
     .stat-title { font-size: 11px; opacity: 0.9; margin-bottom: 2px; }
     .stat-value { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -297,7 +237,6 @@
 
   let rawData = [];
   
-  // Hàm lấy ngày hiện tại định dạng YYYY-MM-DD chuẩn cho input date
   function setTodayDate() {
     let today = new Date();
     let yyyy = today.getFullYear();
@@ -335,13 +274,12 @@
     location.reload();
   }
 
-  // Hàm chuẩn hóa chuỗi ngày hiển thị đẹp
   function formatDateDisplay(dateStr) {
     if (!dateStr) return '';
-    if (dateStr.includes('T')) {
+    if (typeof dateStr === 'string' && dateStr.includes('T')) {
       dateStr = dateStr.split('T')[0];
     }
-    let parts = dateStr.split('-');
+    let parts = String(dateStr).split('-');
     if (parts.length === 3) {
       return `${parts[2]}/${parts[1]}/${parts[0]}`;
     }
@@ -349,16 +287,32 @@
   }
 
   async function loadData() {
+    document.getElementById('list').innerHTML = '<div style="text-align:center; padding:15px; color:var(--text-sub);"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>';
+    
     try {
-      let res = await fetch(SCRIPT_URL);
+      // Thêm redirect mode để tránh lỗi CORS trên thiết bị di động
+      let res = await fetch(SCRIPT_URL + '?t=' + new Date().getTime(), {
+        method: 'GET',
+        redirect: 'follow'
+      });
+      
       rawData = await res.json();
       
-      let names = [...new Set(rawData.map(x => x.ten_tho))];
+      if (!Array.isArray(rawData)) {
+        rawData = [];
+      }
+
+      let names = [...new Set(rawData.map(x => x.ten_tho).filter(Boolean))];
       document.getElementById('tho_suggestions').innerHTML = names.map(n => `<option value="${n}">`).join('');
 
       renderList();
     } catch(err) {
-      document.getElementById('list').innerHTML = '<div style="color:var(--danger); text-align:center; padding:15px;">Không tải được dữ liệu. Bấm "Làm mới dữ liệu" để thử lại!</div>';
+      console.error(err);
+      document.getElementById('list').innerHTML = `
+        <div style="color:var(--danger); text-align:center; padding:15px;">
+          Lỗi kết nối dữ liệu!<br>
+          <small style="color:var(--text-sub)">Vui lòng bấm nút "Làm mới dữ liệu" hoặc kiểm tra lại quyền của Google Script.</small>
+        </div>`;
     }
   }
 
@@ -445,7 +399,12 @@
     renderList();
     resetForm();
 
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+    fetch(SCRIPT_URL, { 
+      method: 'POST', 
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload) 
+    });
   }
 
   function prepareEdit(id) {
@@ -453,7 +412,7 @@
     if(!item) return;
 
     document.getElementById('edit_id').value = item.id;
-    let d = item.ngay || '';
+    let d = String(item.ngay || '');
     if (d.includes('T')) d = d.split('T')[0];
     document.getElementById('ngay').value = d;
     document.getElementById('ten_tho').value = item.ten_tho;
@@ -485,6 +444,8 @@
       renderList();
       fetch(SCRIPT_URL, { 
         method: 'POST', 
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'edit', ...item }) 
       });
     }
@@ -507,7 +468,12 @@
       let item = rawData.find(x => x.id.toString() === id.toString());
       if (item) {
         item.trang_thai = 'Đã thanh toán';
-        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'edit', ...item }) });
+        fetch(SCRIPT_URL, { 
+          method: 'POST', 
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'edit', ...item }) 
+        });
       }
     });
 
@@ -518,7 +484,12 @@
     if(!confirm('Bạn có chắc chắn muốn XÓA dòng này không?')) return;
     rawData = rawData.filter(x => x.id.toString() !== id.toString());
     renderList();
-    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id: id }) });
+    fetch(SCRIPT_URL, { 
+      method: 'POST', 
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'delete', id: id }) 
+    });
   }
 
   initAuth();
