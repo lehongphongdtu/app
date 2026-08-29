@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2620/2620582.png">
@@ -23,12 +23,16 @@
       --border: #e5e5ea;
     }
 
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
       margin: 0;
       padding: 12px;
-      padding-bottom: 75px;
+      padding-bottom: 85px;
       color: var(--text-main);
     }
 
@@ -68,12 +72,12 @@
       display: none;
     }
 
-    /* APPS MAIN */
+    /* APP HEADER */
     .app-header { text-align: center; padding: 6px 0; position: relative; }
     .app-header h2 { margin: 0; font-size: 20px; font-weight: 700; }
     .btn-logout {
       position: absolute; right: 0; top: 50%; transform: translateY(-50%);
-      background: none; border: none; color: var(--danger); font-size: 16px; cursor: pointer;
+      background: none; border: none; color: var(--danger); font-size: 18px; cursor: pointer; padding: 6px;
     }
 
     .card {
@@ -84,11 +88,35 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.03);
     }
 
-    .form-group { position: relative; margin-bottom: 8px; }
-    .form-group i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-sub); }
+    .form-group { position: relative; margin-bottom: 8px; width: 100%; }
+    .form-group i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-sub); z-index: 2; pointer-events: none; }
+    
     .form-control {
-      width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border);
-      padding: 0 10px 0 38px; box-sizing: border-box; font-size: 15px; background: #fafafa; outline: none;
+      width: 100%;
+      height: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 0 12px 0 38px;
+      font-size: 15px;
+      background: #fafafa;
+      outline: none;
+      color: var(--text-main);
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    /* FIX SỰ CỐ TRÀN VÀ VỠ KHUNG DẠNG DATE TRÊN iOS */
+    input[type="date"].form-control {
+      display: block;
+      min-height: 44px;
+      line-height: 44px;
+      padding-right: 10px;
+      background-color: #fafafa;
+    }
+    input[type="date"]::-webkit-inner-spin-button,
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      opacity: 0.6;
+      cursor: pointer;
     }
 
     .btn {
@@ -99,7 +127,7 @@
     .btn-primary { background: var(--primary); color: white; }
     .btn-warning { background: var(--warning); color: white; }
     .btn-success { background: var(--success); color: white; }
-    .btn-reload { background: #e5e5ea; color: var(--text-main); height: 36px; font-size: 13px; margin-bottom: 10px; }
+    .btn-reload { background: #e5e5ea; color: var(--text-main); height: 38px; font-size: 13px; margin-bottom: 10px; }
 
     .summary-grid {
       display: grid;
@@ -109,7 +137,7 @@
     }
     .stat-box {
       border-radius: 10px;
-      padding: 10px 6px;
+      padding: 8px 4px;
       text-align: center;
       color: white;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
@@ -119,11 +147,11 @@
     .stat-box.pending { background: linear-gradient(135deg, #FF9500, #C67300); }
     
     .stat-title { font-size: 11px; opacity: 0.9; margin-bottom: 2px; }
-    .stat-value { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .stat-value { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
     .filter-grid .form-group { margin: 0; }
-    .filter-grid .form-control { height: 36px; font-size: 13px; padding-left: 32px; }
+    .filter-grid .form-control { height: 38px; font-size: 13px; padding-left: 32px; }
 
     .item-card { border-bottom: 1px solid var(--border); padding: 10px 0; display: flex; gap: 10px; align-items: flex-start; }
     .item-card:last-child { border-bottom: none; }
@@ -142,8 +170,8 @@
     .badge-pending { background: #ffe5e5; color: var(--danger); }
     .badge-done { background: #e2f9e5; color: var(--success); }
 
-    .action-btns { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
-    .btn-sm { height: 30px; padding: 0 8px; font-size: 11px; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+    .action-btns { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+    .btn-sm { height: 30px; padding: 0 10px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
     .btn-edit { background: #e5e5ea; color: var(--text-main); }
     .btn-delete { background: #ffe5e5; color: var(--danger); }
     .btn-pay { background: var(--success); color: white; }
@@ -161,7 +189,7 @@
   <div id="login_overlay">
     <div class="login-card">
       <i class="fa-solid fa-user-lock login-icon"></i>
-      <h3>Đăng Nhập Hống Thống</h3>
+      <h3>Đăng Nhập Hệ Thống</h3>
       <div class="form-group">
         <i class="fa-solid fa-user"></i>
         <input type="text" id="login_user" class="form-control" placeholder="Tên đăng nhập">
@@ -228,15 +256,15 @@
     <div class="summary-grid">
       <div class="stat-box total">
         <div class="stat-title">Tổng tiền công</div>
-        <div class="stat-value" id="val_tong">0k</div>
+        <div class="stat-value" id="val_tong">0 đ</div>
       </div>
       <div class="stat-box done">
         <div class="stat-title">Đã thanh toán</div>
-        <div class="stat-value" id="val_da_tra">0k</div>
+        <div class="stat-value" id="val_da_tra">0 đ</div>
       </div>
       <div class="stat-box pending">
         <div class="stat-title">Chưa thanh toán</div>
-        <div class="stat-value" id="val_chua_tra">0k</div>
+        <div class="stat-value" id="val_chua_tra">0 đ</div>
       </div>
     </div>
 
@@ -268,9 +296,17 @@
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7PL71r30UmPRpGTq3zc_HfGsKImyNZp0gtCwKOPEUk2ZAovg__1RgzDcxX_l5rTx8xg/exec";
 
   let rawData = [];
-  document.getElementById('ngay').valueAsDate = new Date();
+  
+  // Hàm lấy ngày hiện tại định dạng YYYY-MM-DD chuẩn cho input date
+  function setTodayDate() {
+    let today = new Date();
+    let yyyy = today.getFullYear();
+    let mm = String(today.getMonth() + 1).padStart(2, '0');
+    let dd = String(today.getDate()).padStart(2, '0');
+    document.getElementById('ngay').value = `${yyyy}-${mm}-${dd}`;
+  }
+  setTodayDate();
 
-  // XỬ LÝ ĐĂNG NHẬP
   function initAuth() {
     if (sessionStorage.getItem('isLoggedIn') === 'true') {
       document.getElementById('login_overlay').style.display = 'none';
@@ -297,6 +333,19 @@
   function logout() {
     sessionStorage.removeItem('isLoggedIn');
     location.reload();
+  }
+
+  // Hàm chuẩn hóa chuỗi ngày hiển thị đẹp
+  function formatDateDisplay(dateStr) {
+    if (!dateStr) return '';
+    if (dateStr.includes('T')) {
+      dateStr = dateStr.split('T')[0];
+    }
+    let parts = dateStr.split('-');
+    if (parts.length === 3) {
+      return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return dateStr;
   }
 
   async function loadData() {
@@ -345,7 +394,7 @@
           <div class="item-content">
             <div class="item-header">
               <span class="tho-name">${item.ten_tho}</span>
-              <span class="item-date">${item.ngay}</span>
+              <span class="item-date">${formatDateDisplay(item.ngay)}</span>
             </div>
             <div class="item-desc">${item.noi_dung || 'Không có nội dung'}</div>
             <div class="item-footer">
@@ -373,10 +422,12 @@
 
   async function luuData() {
     let id = document.getElementById('edit_id').value;
+    let rawDate = document.getElementById('ngay').value;
+
     let payload = {
       action: id ? 'edit' : 'add',
       id: id || new Date().getTime().toString(),
-      ngay: document.getElementById('ngay').value,
+      ngay: rawDate,
       ten_tho: document.getElementById('ten_tho').value,
       noi_dung: document.getElementById('noi_dung').value,
       tien_cong: document.getElementById('tien_cong').value,
@@ -402,7 +453,9 @@
     if(!item) return;
 
     document.getElementById('edit_id').value = item.id;
-    document.getElementById('ngay').value = item.ngay;
+    let d = item.ngay || '';
+    if (d.includes('T')) d = d.split('T')[0];
+    document.getElementById('ngay').value = d;
     document.getElementById('ten_tho').value = item.ten_tho;
     document.getElementById('noi_dung').value = item.noi_dung;
     document.getElementById('tien_cong').value = item.tien_cong;
@@ -418,7 +471,7 @@
     document.getElementById('ten_tho').value = '';
     document.getElementById('noi_dung').value = '';
     document.getElementById('tien_cong').value = '';
-    document.getElementById('ngay').valueAsDate = new Date();
+    setTodayDate();
     document.getElementById('btn_text').innerText = 'Thêm Ghi Công';
     document.getElementById('btn_submit').className = 'btn btn-primary';
   }
@@ -468,7 +521,6 @@
     fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id: id }) });
   }
 
-  // Khởi chạy kiểm tra đăng nhập
   initAuth();
 </script>
 </body>
