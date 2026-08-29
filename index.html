@@ -286,21 +286,26 @@
     return dateStr;
   }
 
+  // Chuẩn hóa định dạng chuỗi ngày về dạng YYYY-MM-DD để so sánh chuẩn xác
+  function getStandardDateStr(dateStr) {
+    if (!dateStr) return '';
+    if (typeof dateStr === 'string' && dateStr.includes('T')) {
+      return dateStr.split('T')[0];
+    }
+    return String(dateStr);
+  }
+
   async function loadData() {
     document.getElementById('list').innerHTML = '<div style="text-align:center; padding:15px; color:var(--text-sub);"><i class="fa-solid fa-spinner fa-spin"></i> Đang tải dữ liệu...</div>';
     
     try {
-      // Thêm redirect mode để tránh lỗi CORS trên thiết bị di động
       let res = await fetch(SCRIPT_URL + '?t=' + new Date().getTime(), {
         method: 'GET',
         redirect: 'follow'
       });
       
       rawData = await res.json();
-      
-      if (!Array.isArray(rawData)) {
-        rawData = [];
-      }
+      if (!Array.isArray(rawData)) rawData = [];
 
       let names = [...new Set(rawData.map(x => x.ten_tho).filter(Boolean))];
       document.getElementById('tho_suggestions').innerHTML = names.map(n => `<option value="${n}">`).join('');
@@ -326,12 +331,19 @@
       return matchTho && matchTT;
     });
 
+    // SẮP XẾP NGÀY TỪ MỚI NHẤT DỄN CŨ NHẤT
+    filtered.sort((a, b) => {
+      let dateA = getStandardDateStr(a.ngay);
+      let dateB = getStandardDateStr(b.ngay);
+      return dateB.localeCompare(dateA); // Ngày gần nhất lên trên
+    });
+
     let html = '';
     let tongTien = 0;
     let tongDaTra = 0;
     let tongChuaTra = 0;
 
-    filtered.slice().reverse().forEach(item => {
+    filtered.forEach(item => {
       let tien = Number(item.tien_cong || 0);
       let isDone = item.trang_thai === 'Đã thanh toán';
 
