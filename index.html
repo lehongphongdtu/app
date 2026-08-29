@@ -3,338 +3,473 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Quản Lý Công Thợ</title>
-  
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Công Thợ">
-  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3062/3062534.png">
-
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/2620/2620582.png">
+  <title>Quản Lý Công Thợ</title>
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: #f4f6f8; margin: 0; padding: 15px; color: #333; }
-    h2 { text-align: center; color: #007aff; margin-top: 10px; }
-    .card { background: #fff; padding: 15px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 15px; }
-    label { font-weight: bold; font-size: 14px; display: block; margin-top: 10px; }
-    input, textarea, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
-    .btn { background: #007aff; color: #fff; border: none; padding: 12px; width: 100%; border-radius: 8px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; }
-    .btn-danger { background: #ff3b30; }
-    .btn-warning { background: #ff9500; }
-    .btn-success { background: #34c759; }
-    .btn-group { display: flex; gap: 8px; margin-top: 10px; }
-    .btn-group button { flex: 1; margin-top: 0; }
-    .item { border-bottom: 1px solid #eee; padding: 10px 0; }
-    .item:last-child { border-bottom: none; }
-    .item-img { width: 100%; max-height: 250px; object-fit: cover; border-radius: 8px; margin-top: 8px; }
-    .gps-info { font-size: 12px; color: #666; font-style: italic; }
-    .total-box { background: #e5f1ff; padding: 12px; border-radius: 8px; font-weight: bold; color: #0056b3; font-size: 16px; margin-bottom: 10px; }
-    #previewImg { width: 100%; max-height: 150px; object-fit: cover; border-radius: 8px; display: none; margin-top: 8px; }
-    
-    /* Giao diện Login Overlay */
-    #loginOverlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: #f4f6f8; z-index: 9999; display: flex;
-      align-items: center; justify-content: center; padding: 20px;
+    :root {
+      --bg: #f2f2f7;
+      --card-bg: #ffffff;
+      --primary: #007aff;
+      --danger: #ff3b30;
+      --success: #34c759;
+      --warning: #ff9500;
+      --text-main: #1c1c1e;
+      --text-sub: #8e8e93;
+      --border: #e5e5ea;
     }
-    .login-box { background: #fff; padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.15); width: 100%; max-width: 350px; }
-    .header-bar { display: flex; justify-content: space-between; align-items: center; }
-    .btn-logout { background: #8e8e93; color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      margin: 0;
+      padding: 12px;
+      padding-bottom: 75px;
+      color: var(--text-main);
+    }
+
+    /* GIAO DIỆN ĐĂNG NHẬP */
+    #login_overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .login-card {
+      background: var(--card-bg);
+      width: 100%;
+      max-width: 360px;
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+      text-align: center;
+    }
+    .login-card i.login-icon {
+      font-size: 48px;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+    .login-card h3 {
+      margin: 0 0 16px 0;
+      font-size: 20px;
+    }
+    .login-err {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 8px;
+      display: none;
+    }
+
+    /* APPS MAIN */
+    .app-header { text-align: center; padding: 6px 0; position: relative; }
+    .app-header h2 { margin: 0; font-size: 20px; font-weight: 700; }
+    .btn-logout {
+      position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--danger); font-size: 16px; cursor: pointer;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    .form-group { position: relative; margin-bottom: 8px; }
+    .form-group i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-sub); }
+    .form-control {
+      width: 100%; height: 42px; border-radius: 10px; border: 1px solid var(--border);
+      padding: 0 10px 0 38px; box-sizing: border-box; font-size: 15px; background: #fafafa; outline: none;
+    }
+
+    .btn {
+      width: 100%; height: 44px; border-radius: 10px; border: none;
+      font-size: 15px; font-weight: 600; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+    }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-warning { background: var(--warning); color: white; }
+    .btn-success { background: var(--success); color: white; }
+    .btn-reload { background: #e5e5ea; color: var(--text-main); height: 36px; font-size: 13px; margin-bottom: 10px; }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .stat-box {
+      border-radius: 10px;
+      padding: 10px 6px;
+      text-align: center;
+      color: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .stat-box.total { background: linear-gradient(135deg, #5856D6, #3634A3); }
+    .stat-box.done { background: linear-gradient(135deg, #34C759, #248A3D); }
+    .stat-box.pending { background: linear-gradient(135deg, #FF9500, #C67300); }
+    
+    .stat-title { font-size: 11px; opacity: 0.9; margin-bottom: 2px; }
+    .stat-value { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+    .filter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+    .filter-grid .form-group { margin: 0; }
+    .filter-grid .form-control { height: 36px; font-size: 13px; padding-left: 32px; }
+
+    .item-card { border-bottom: 1px solid var(--border); padding: 10px 0; display: flex; gap: 10px; align-items: flex-start; }
+    .item-card:last-child { border-bottom: none; }
+    .item-checkbox { margin-top: 4px; width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+    .item-content { flex: 1; }
+    
+    .item-header { display: flex; justify-content: space-between; align-items: center; }
+    .tho-name { font-weight: 700; font-size: 15px; }
+    .item-date { font-size: 12px; color: var(--text-sub); }
+    .item-desc { font-size: 13px; color: #3a3a3c; margin: 4px 0; }
+    
+    .item-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+    .item-price { font-size: 15px; font-weight: 700; color: var(--primary); }
+    
+    .badge { padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .badge-pending { background: #ffe5e5; color: var(--danger); }
+    .badge-done { background: #e2f9e5; color: var(--success); }
+
+    .action-btns { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+    .btn-sm { height: 30px; padding: 0 8px; font-size: 11px; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+    .btn-edit { background: #e5e5ea; color: var(--text-main); }
+    .btn-delete { background: #ffe5e5; color: var(--danger); }
+    .btn-pay { background: var(--success); color: white; }
+
+    .batch-pay-bar {
+      position: fixed; bottom: 10px; left: 12px; right: 12px; background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px); padding: 8px; border-radius: 12px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.1); border: 1px solid var(--border); z-index: 100;
+    }
   </style>
 </head>
 <body>
 
   <!-- MÀN HÌNH ĐĂNG NHẬP -->
-  <div id="loginOverlay">
-    <div class="login-box">
-      <h2 style="margin-top:0;">🔒 Đăng Nhập</h2>
-      <p style="text-align:center; font-size: 13px; color: #666;">Nhập tài khoản để tiếp tục</p>
-      
-      <label>Tên đăng nhập:</label>
-      <input type="text" id="loginUser" placeholder="Nhập admin">
-
-      <label>Mật khẩu:</label>
-      <input type="password" id="loginPass" placeholder="Nhập mật khẩu">
-
-      <button class="btn" onclick="checkLogin()">Đăng Nhập</button>
+  <div id="login_overlay">
+    <div class="login-card">
+      <i class="fa-solid fa-user-lock login-icon"></i>
+      <h3>Đăng Nhập Hống Thống</h3>
+      <div class="form-group">
+        <i class="fa-solid fa-user"></i>
+        <input type="text" id="login_user" class="form-control" placeholder="Tên đăng nhập">
+      </div>
+      <div class="form-group">
+        <i class="fa-solid fa-key"></i>
+        <input type="password" id="login_pass" class="form-control" placeholder="Mật khẩu">
+      </div>
+      <button class="btn btn-primary" onclick="checkLogin()">Đăng Nhập</button>
+      <div id="login_err" class="login-err">Tên đăng nhập hoặc mật khẩu không đúng!</div>
     </div>
   </div>
 
-  <!-- NỘI DUNG ỨNG DỤNG (ẨN KHI CHƯA LOGIN) -->
-  <div id="mainApp" style="display:none;">
-    <div class="header-bar">
-      <h2 style="margin:0;">👷 Quản Lý Công Thợ</h2>
-      <button class="btn-logout" onclick="logout()">🔒 Khóa App</button>
-    </div>
-
-    <div class="card" style="margin-top: 15px;">
-      <h3 id="formTitle" style="margin:0">Thêm bản ghi mới</h3>
-      <input type="hidden" id="editId">
-
-      <label>Tên thợ (*):</label>
-      <input type="text" id="tenTho" placeholder="Ví dụ: Nguyễn Văn A">
-
-      <label>Tiền công (VNĐ):</label>
-      <input type="number" id="tienCong" placeholder="Ví dụ: 500000">
-
-      <label>Nội dung công việc:</label>
-      <textarea id="noiDung" rows="2" placeholder="Ví dụ: Thi công đường điện..."></textarea>
-
-      <label>Chụp ảnh công trình/sự kiện:</label>
-      <input type="file" id="cameraInput" accept="image/*" capture="environment" onchange="processAndPreviewImage(event)">
-      <img id="previewImg" src="" alt="Ảnh xem trước">
-
-      <button class="btn" id="btnSave" onclick="saveRecord()">💾 Lưu Bản Ghi</button>
-      <button class="btn btn-warning" id="btnCancelEdit" style="display:none;" onclick="resetForm()">Hủy Sửa</button>
-    </div>
-
-    <div class="card">
-      <h3>🔍 Lọc & Thống kê</h3>
-      <label>Lọc theo thợ:</label>
-      <select id="filterTho" onchange="renderList()">
-        <option value="">-- Tất cả thợ --</option>
-      </select>
-      <div class="total-box" style="margin-top: 10px;">
-        Tổng tiền công: <span id="totalMoney">0</span> VNĐ
-      </div>
-    </div>
-
-    <div class="card">
-      <h3>📋 Danh sách nhật ký</h3>
-      <div id="dataList"></div>
-    </div>
-
-    <div class="card">
-      <h3>☁️ Sao lưu & Khôi phục</h3>
-      <div class="btn-group">
-        <button class="btn btn-success" onclick="exportData()">📤 Tải Backup</button>
-        <button class="btn btn-warning" onclick="document.getElementById('importFile').click()">📥 Nhập Backup</button>
-      </div>
-      <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importData(event)">
-    </div>
+  <!-- NỘI DUNG ỨNG DỤNG -->
+  <div class="app-header">
+    <h2><i class="fa-solid fa-clipboard-user" style="color:var(--primary)"></i> Sổ Ghi Công Thợ</h2>
+    <button class="btn-logout" onclick="logout()" title="Đăng xuất"><i class="fa-solid fa-right-from-bracket"></i></button>
   </div>
 
-  <script>
-    // KIỂM TRA ĐĂNG NHẬP
-    function checkLogin() {
-      const u = document.getElementById("loginUser").value.trim();
-      const p = document.getElementById("loginPass").value.trim();
-
-      if (u === "admin" && p === "Hanhphong2025") {
-        sessionStorage.setItem("IS_LOGGED_IN", "true");
-        showMainApp();
-      } else {
-        alert("Tên đăng nhập hoặc mật khẩu không đúng!");
-      }
-    }
-
-    function showMainApp() {
-      document.getElementById("loginOverlay").style.display = "none";
-      document.getElementById("mainApp").style.display = "block";
-      renderList();
-    }
-
-    function logout() {
-      sessionStorage.removeItem("IS_LOGGED_IN");
-      location.reload();
-    }
-
-    // Tự động vào thẳng nếu đã đăng nhập trong phiên làm việc
-    if (sessionStorage.getItem("IS_LOGGED_IN") === "true") {
-      showMainApp();
-    }
-
-    // LOGIC XỬ LÝ DỮ LIỆU CÔNG THỢ
-    let db = [];
-    try {
-      db = JSON.parse(localStorage.getItem("CONG_THO_DB")) || [];
-    } catch(e) { db = []; }
+  <!-- FORM NHẬP / SỬA -->
+  <div class="card">
+    <input type="hidden" id="edit_id">
     
-    let currentGeo = { lat: "", lng: "" };
+    <div class="form-group">
+      <i class="fa-regular fa-calendar"></i>
+      <input type="date" id="ngay" class="form-control">
+    </div>
 
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        pos => { currentGeo = { lat: pos.coords.latitude.toFixed(5), lng: pos.coords.longitude.toFixed(5) }; },
-        err => {},
-        { timeout: 5000 }
-      );
+    <div class="form-group">
+      <i class="fa-solid fa-user"></i>
+      <input type="text" id="ten_tho" class="form-control" placeholder="Tên thợ (Ví dụ: Thợ Nam)" list="tho_suggestions">
+      <datalist id="tho_suggestions"></datalist>
+    </div>
+
+    <div class="form-group">
+      <i class="fa-solid fa-pen-to-square"></i>
+      <input type="text" id="noi_dung" class="form-control" placeholder="Nội dung công việc">
+    </div>
+
+    <div class="form-group">
+      <i class="fa-solid fa-money-bill-wave"></i>
+      <input type="number" id="tien_cong" class="form-control" placeholder="Số tiền công (VNĐ)">
+    </div>
+
+    <div class="form-group">
+      <i class="fa-solid fa-list-check"></i>
+      <select id="trang_thai" class="form-control">
+        <option value="Chưa thanh toán">Chưa thanh toán</option>
+        <option value="Đã thanh toán">Đã thanh toán</option>
+      </select>
+    </div>
+
+    <button id="btn_submit" class="btn btn-primary" onclick="luuData()">
+      <i class="fa-solid fa-plus"></i> <span id="btn_text">Thêm Ghi Công</span>
+    </button>
+  </div>
+
+  <!-- DANH SÁCH & LỌC -->
+  <div class="card">
+    <button class="btn btn-reload" onclick="loadData()">
+      <i class="fa-solid fa-rotate-right"></i> Làm mới dữ liệu
+    </button>
+
+    <div class="summary-grid">
+      <div class="stat-box total">
+        <div class="stat-title">Tổng tiền công</div>
+        <div class="stat-value" id="val_tong">0k</div>
+      </div>
+      <div class="stat-box done">
+        <div class="stat-title">Đã thanh toán</div>
+        <div class="stat-value" id="val_da_tra">0k</div>
+      </div>
+      <div class="stat-box pending">
+        <div class="stat-title">Chưa thanh toán</div>
+        <div class="stat-value" id="val_chua_tra">0k</div>
+      </div>
+    </div>
+
+    <div class="filter-grid">
+      <div class="form-group">
+        <i class="fa-solid fa-filter"></i>
+        <input type="text" id="filter_tho" class="form-control" placeholder="Lọc tên thợ..." oninput="renderList()">
+      </div>
+      <div class="form-group">
+        <i class="fa-solid fa-tags"></i>
+        <select id="filter_tt" class="form-control" onchange="renderList()">
+          <option value="">Tất cả trạng thái</option>
+          <option value="Chưa thanh toán">Chưa trả</option>
+          <option value="Đã thanh toán">Đã trả</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="list">Đang tải dữ liệu...</div>
+  </div>
+
+  <div class="batch-pay-bar">
+    <button class="btn btn-success" onclick="thanhToanCacMucDaChon()">
+      <i class="fa-solid fa-check-double"></i> Thanh toán mục đã chọn
+    </button>
+  </div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7PL71r30UmPRpGTq3zc_HfGsKImyNZp0gtCwKOPEUk2ZAovg__1RgzDcxX_l5rTx8xg/exec";
+
+  let rawData = [];
+  document.getElementById('ngay').valueAsDate = new Date();
+
+  // XỬ LÝ ĐĂNG NHẬP
+  function initAuth() {
+    if (sessionStorage.getItem('isLoggedIn') === 'true') {
+      document.getElementById('login_overlay').style.display = 'none';
+      loadData();
+    } else {
+      document.getElementById('login_overlay').style.display = 'flex';
     }
+  }
 
-    function processAndPreviewImage(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+  function checkLogin() {
+    let u = document.getElementById('login_user').value.trim();
+    let p = document.getElementById('login_pass').value.trim();
 
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 800;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > MAX_WIDTH) {
-            height = Math.round((height * MAX_WIDTH) / width);
-            width = MAX_WIDTH;
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.6);
-
-          const previewEl = document.getElementById("previewImg");
-          previewEl.src = compressedBase64;
-          previewEl.style.display = "block";
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+    if (u === 'admin' && p === 'Hanhphong2026') {
+      sessionStorage.setItem('isLoggedIn', 'true');
+      document.getElementById('login_overlay').style.display = 'none';
+      document.getElementById('login_err').style.display = 'none';
+      loadData();
+    } else {
+      document.getElementById('login_err').style.display = 'block';
     }
+  }
 
-    function saveRecord() {
-      try {
-        const editId = document.getElementById("editId").value;
-        const tenTho = document.getElementById("tenTho").value.trim();
-        const tienCong = Number(document.getElementById("tienCong").value) || 0;
-        const noiDung = document.getElementById("noiDung").value.trim();
-        const imgEl = document.getElementById("previewImg");
-        const imgSrc = imgEl.style.display === "block" ? imgEl.src : "";
+  function logout() {
+    sessionStorage.removeItem('isLoggedIn');
+    location.reload();
+  }
 
-        if (!tenTho) return alert("Vui lòng nhập Tên thợ!");
-
-        if (editId) {
-          const idx = db.findIndex(item => item.id == editId);
-          if (idx !== -1) {
-            db[idx].tenTho = tenTho;
-            db[idx].tienCong = tienCong;
-            db[idx].noiDung = noiDung;
-            if (imgSrc) db[idx].hinhAnh = imgSrc;
-          }
-        } else {
-          const now = new Date();
-          const newItem = {
-            id: Date.now(),
-            ngay: now.toLocaleDateString('vi-VN') + " " + now.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}),
-            tenTho,
-            tienCong,
-            noiDung,
-            hinhAnh: imgSrc,
-            gps: currentGeo
-          };
-          db.unshift(newItem);
-        }
-
-        localStorage.setItem("CONG_THO_DB", JSON.stringify(db));
-        resetForm();
-        renderList();
-        alert("Đã lưu bản ghi thành công!");
-      } catch (err) {
-        alert("Có lỗi xảy ra khi lưu: " + err.message);
-      }
-    }
-
-    function resetForm() {
-      document.getElementById("editId").value = "";
-      document.getElementById("tenTho").value = "";
-      document.getElementById("tienCong").value = "";
-      document.getElementById("noiDung").value = "";
-      document.getElementById("cameraInput").value = "";
-      document.getElementById("previewImg").style.display = "none";
-      document.getElementById("previewImg").src = "";
-      document.getElementById("formTitle").innerText = "Thêm bản ghi mới";
-      document.getElementById("btnCancelEdit").style.display = "none";
-    }
-
-    function renderList() {
-      const listEl = document.getElementById("dataList");
-      const filterSelect = document.getElementById("filterTho");
-      if (!listEl || !filterSelect) return;
+  async function loadData() {
+    try {
+      let res = await fetch(SCRIPT_URL);
+      rawData = await res.json();
       
-      const filterTho = filterSelect.value;
+      let names = [...new Set(rawData.map(x => x.ten_tho))];
+      document.getElementById('tho_suggestions').innerHTML = names.map(n => `<option value="${n}">`).join('');
 
-      const dsTho = [...new Set(db.map(i => i.tenTho))];
-      filterSelect.innerHTML = '<option value="">-- Tất cả thợ --</option>' + 
-        dsTho.map(t => `<option value="${t}" ${t === filterTho ? 'selected' : ''}>${t}</option>`).join('');
+      renderList();
+    } catch(err) {
+      document.getElementById('list').innerHTML = '<div style="color:var(--danger); text-align:center; padding:15px;">Không tải được dữ liệu. Bấm "Làm mới dữ liệu" để thử lại!</div>';
+    }
+  }
 
-      let filteredDb = filterTho ? db.filter(i => i.tenTho === filterTho) : db;
-      
-      const total = filteredDb.reduce((sum, i) => sum + Number(i.tienCong), 0);
-      document.getElementById("totalMoney").innerText = total.toLocaleString('vi-VN');
+  function renderList() {
+    let filterTho = document.getElementById('filter_tho').value.toLowerCase();
+    let filterTT = document.getElementById('filter_tt').value;
+    
+    let filtered = rawData.filter(item => {
+      let matchTho = (item.ten_tho || '').toLowerCase().includes(filterTho);
+      let matchTT = filterTT === "" || item.trang_thai === filterTT;
+      return matchTho && matchTT;
+    });
 
-      if (filteredDb.length === 0) {
-        listEl.innerHTML = "<p style='text-align:center; color:#999;'>Chưa có dữ liệu.</p>";
-        return;
+    let html = '';
+    let tongTien = 0;
+    let tongDaTra = 0;
+    let tongChuaTra = 0;
+
+    filtered.slice().reverse().forEach(item => {
+      let tien = Number(item.tien_cong || 0);
+      let isDone = item.trang_thai === 'Đã thanh toán';
+
+      tongTien += tien;
+      if (isDone) {
+        tongDaTra += tien;
+      } else {
+        tongChuaTra += tien;
       }
 
-      listEl.innerHTML = filteredDb.map(item => `
-        <div class="item">
-          <strong>👤 ${item.tenTho}</strong> - <span style="color:#28a745; font-weight:bold;">${Number(item.tienCong).toLocaleString('vi-VN')} đ</span>
-          <br><small style="color:#666;">📅 ${item.ngay}</small>
-          ${item.gps && item.gps.lat ? `<br><span class="gps-info">📍 GPS: ${item.gps.lat}, ${item.gps.lng}</span>` : ''}
-          <p style="margin: 5px 0;">📝 ${item.noiDung || 'Không có ghi chú'}</p>
-          ${item.hinhAnh ? `<img src="${item.hinhAnh}" class="item-img">` : ''}
-          <div class="btn-group">
-            <button class="btn btn-warning" onclick="editRecord(${item.id})">✏️ Sửa</button>
-            <button class="btn btn-danger" onclick="deleteRecord(${item.id})">🗑️ Xóa</button>
+      html += `
+        <div class="item-card">
+          ${!isDone ? `<input type="checkbox" class="item-checkbox pay-check" value="${item.id}" data-price="${item.tien_cong}" data-tho="${item.ten_tho}">` : '<div style="width:20px;"></div>'}
+          <div class="item-content">
+            <div class="item-header">
+              <span class="tho-name">${item.ten_tho}</span>
+              <span class="item-date">${item.ngay}</span>
+            </div>
+            <div class="item-desc">${item.noi_dung || 'Không có nội dung'}</div>
+            <div class="item-footer">
+              <span class="item-price">${tien.toLocaleString()} VNĐ</span>
+              <span class="badge ${isDone ? 'badge-done' : 'badge-pending'}">
+                ${isDone ? 'Đã trả' : 'Chưa trả'}
+              </span>
+            </div>
+            <div class="action-btns">
+              ${!isDone ? `<button class="btn-sm btn-pay" onclick="xacNhanThanhToanLe('${item.id}', '${item.ten_tho}', ${item.tien_cong})"><i class="fa-solid fa-check"></i> Thanh toán</button>` : ''}
+              <button class="btn-sm btn-edit" onclick="prepareEdit('${item.id}')"><i class="fa-solid fa-pen"></i> Sửa</button>
+              <button class="btn-sm btn-delete" onclick="xoaItem('${item.id}')"><i class="fa-solid fa-trash"></i> Xóa</button>
+            </div>
           </div>
         </div>
-      `).join('');
-    }
+      `;
+    });
 
-    function editRecord(id) {
-      const item = db.find(i => i.id == id);
-      if (!item) return;
-      document.getElementById("editId").value = item.id;
-      document.getElementById("tenTho").value = item.tenTho;
-      document.getElementById("tienCong").value = item.tienCong;
-      document.getElementById("noiDung").value = item.noiDung;
-      if (item.hinhAnh) {
-        const img = document.getElementById("previewImg");
-        img.src = item.hinhAnh;
-        img.style.display = "block";
+    document.getElementById('val_tong').innerText = `${tongTien.toLocaleString()} đ`;
+    document.getElementById('val_da_tra').innerText = `${tongDaTra.toLocaleString()} đ`;
+    document.getElementById('val_chua_tra').innerText = `${tongChuaTra.toLocaleString()} đ`;
+
+    document.getElementById('list').innerHTML = html || '<div style="text-align:center; padding:15px; color:var(--text-sub);">Không tìm thấy dữ liệu</div>';
+  }
+
+  async function luuData() {
+    let id = document.getElementById('edit_id').value;
+    let payload = {
+      action: id ? 'edit' : 'add',
+      id: id || new Date().getTime().toString(),
+      ngay: document.getElementById('ngay').value,
+      ten_tho: document.getElementById('ten_tho').value,
+      noi_dung: document.getElementById('noi_dung').value,
+      tien_cong: document.getElementById('tien_cong').value,
+      trang_thai: document.getElementById('trang_thai').value
+    };
+
+    if(!payload.ten_tho || !payload.tien_cong) return alert('Vui lòng nhập Tên thợ và Tiền công!');
+
+    if (id) {
+      let idx = rawData.findIndex(x => x.id.toString() === id.toString());
+      if (idx !== -1) rawData[idx] = payload;
+    } else {
+      rawData.push(payload);
+    }
+    renderList();
+    resetForm();
+
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+  }
+
+  function prepareEdit(id) {
+    let item = rawData.find(x => x.id.toString() === id.toString());
+    if(!item) return;
+
+    document.getElementById('edit_id').value = item.id;
+    document.getElementById('ngay').value = item.ngay;
+    document.getElementById('ten_tho').value = item.ten_tho;
+    document.getElementById('noi_dung').value = item.noi_dung;
+    document.getElementById('tien_cong').value = item.tien_cong;
+    document.getElementById('trang_thai').value = item.trang_thai;
+
+    document.getElementById('btn_text').innerText = 'Cập Nhật Ghi Công';
+    document.getElementById('btn_submit').className = 'btn btn-warning';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function resetForm() {
+    document.getElementById('edit_id').value = '';
+    document.getElementById('ten_tho').value = '';
+    document.getElementById('noi_dung').value = '';
+    document.getElementById('tien_cong').value = '';
+    document.getElementById('ngay').valueAsDate = new Date();
+    document.getElementById('btn_text').innerText = 'Thêm Ghi Công';
+    document.getElementById('btn_submit').className = 'btn btn-primary';
+  }
+
+  async function xacNhanThanhToanLe(id, tenTho, tien) {
+    if (!confirm(`XÁC NHẬN THANH TOÁN:\n- Thợ: ${tenTho}\n- Số tiền: ${Number(tien).toLocaleString()} VNĐ?`)) return;
+    
+    let item = rawData.find(x => x.id.toString() === id.toString());
+    if (item) {
+      item.trang_thai = 'Đã thanh toán';
+      renderList();
+      fetch(SCRIPT_URL, { 
+        method: 'POST', 
+        body: JSON.stringify({ action: 'edit', ...item }) 
+      });
+    }
+  }
+
+  async function thanhToanCacMucDaChon() {
+    let selectedBoxes = document.querySelectorAll('.pay-check:checked');
+    if (selectedBoxes.length === 0) return alert('Vui lòng tích chọn ít nhất một mục công!');
+
+    let tongTien = 0;
+    let selectedIds = [];
+    selectedBoxes.forEach(box => {
+      selectedIds.push(box.value);
+      tongTien += Number(box.getAttribute('data-price') || 0);
+    });
+
+    if (!confirm(`XÁC NHẬN THANH TOÁN ${selectedBoxes.length} MỤC:\nTỔNG TIỀN: ${tongTien.toLocaleString()} VNĐ?`)) return;
+
+    selectedIds.forEach(id => {
+      let item = rawData.find(x => x.id.toString() === id.toString());
+      if (item) {
+        item.trang_thai = 'Đã thanh toán';
+        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'edit', ...item }) });
       }
-      document.getElementById("formTitle").innerText = "Sửa bản ghi";
-      document.getElementById("btnCancelEdit").style.display = "block";
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    });
 
-    function deleteRecord(id) {
-      if (confirm("Xóa bản ghi này?")) {
-        db = db.filter(i => i.id != id);
-        localStorage.setItem("CONG_THO_DB", JSON.stringify(db));
-        renderList();
-      }
-    }
+    renderList();
+  }
 
-    function exportData() {
-      if (db.length === 0) return alert("Chưa có dữ liệu!");
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db));
-      const a = document.createElement('a');
-      a.href = dataStr;
-      a.download = `Backup_CongTho_${new Date().toISOString().slice(0,10)}.json`;
-      a.click();
-    }
+  async function xoaItem(id) {
+    if(!confirm('Bạn có chắc chắn muốn XÓA dòng này không?')) return;
+    rawData = rawData.filter(x => x.id.toString() !== id.toString());
+    renderList();
+    fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify({ action: 'delete', id: id }) });
+  }
 
-    function importData(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        try {
-          const imported = JSON.parse(event.target.result);
-          if (Array.isArray(imported)) {
-            db = imported;
-            localStorage.setItem("CONG_THO_DB", JSON.stringify(db));
-            renderList();
-            alert("Đã khôi phục thành công!");
-          }
-        } catch (err) { alert("Lỗi đọc file backup!"); }
-      };
-      reader.readAsText(file);
-    }
-  </script>
+  // Khởi chạy kiểm tra đăng nhập
+  initAuth();
+</script>
 </body>
 </html>
