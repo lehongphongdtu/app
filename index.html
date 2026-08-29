@@ -106,9 +106,11 @@
     .item-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
     .item-price { font-size: 15px; font-weight: 700; color: var(--primary); }
     
+    .badge-box { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
     .badge { padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: 600; }
     .badge-pending { background: #ffe5e5; color: var(--danger); }
     .badge-done { background: #e2f9e5; color: var(--success); }
+    .pay-date-info { font-size: 10px; color: var(--text-sub); font-style: italic; }
 
     .action-btns { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
     .btn-sm { height: 30px; padding: 0 10px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
@@ -237,12 +239,16 @@
 
   let rawData = [];
   
-  function setTodayDate() {
+  function getTodayString() {
     let today = new Date();
     let yyyy = today.getFullYear();
     let mm = String(today.getMonth() + 1).padStart(2, '0');
     let dd = String(today.getDate()).padStart(2, '0');
-    document.getElementById('ngay').value = `${yyyy}-${mm}-${dd}`;
+    return `${yyyy}-${mm}-${dd}`;
+  }
+
+  function setTodayDate() {
+    document.getElementById('ngay').value = getTodayString();
   }
   setTodayDate();
 
@@ -286,7 +292,6 @@
     return dateStr;
   }
 
-  // Chuẩn hóa định dạng chuỗi ngày về dạng YYYY-MM-DD để so sánh chuẩn xác
   function getStandardDateStr(dateStr) {
     if (!dateStr) return '';
     if (typeof dateStr === 'string' && dateStr.includes('T')) {
@@ -331,11 +336,10 @@
       return matchTho && matchTT;
     });
 
-    // SẮP XẾP NGÀY TỪ MỚI NHẤT DỄN CŨ NHẤT
     filtered.sort((a, b) => {
       let dateA = getStandardDateStr(a.ngay);
       let dateB = getStandardDateStr(b.ngay);
-      return dateB.localeCompare(dateA); // Ngày gần nhất lên trên
+      return dateB.localeCompare(dateA);
     });
 
     let html = '';
@@ -360,14 +364,17 @@
           <div class="item-content">
             <div class="item-header">
               <span class="tho-name">${item.ten_tho}</span>
-              <span class="item-date">${formatDateDisplay(item.ngay)}</span>
+              <span class="item-date"><i class="fa-regular fa-calendar-check"></i> Làm: ${formatDateDisplay(item.ngay)}</span>
             </div>
             <div class="item-desc">${item.noi_dung || 'Không có nội dung'}</div>
             <div class="item-footer">
               <span class="item-price">${tien.toLocaleString()} VNĐ</span>
-              <span class="badge ${isDone ? 'badge-done' : 'badge-pending'}">
-                ${isDone ? 'Đã trả' : 'Chưa trả'}
-              </span>
+              <div class="badge-box">
+                <span class="badge ${isDone ? 'badge-done' : 'badge-pending'}">
+                  ${isDone ? 'Đã trả' : 'Chưa trả'}
+                </span>
+                ${isDone && item.ngay_tt ? `<span class="pay-date-info">TT: ${formatDateDisplay(item.ngay_tt)}</span>` : ''}
+              </div>
             </div>
             <div class="action-btns">
               ${!isDone ? `<button class="btn-sm btn-pay" onclick="xacNhanThanhToanLe('${item.id}', '${item.ten_tho}', ${item.tien_cong})"><i class="fa-solid fa-check"></i> Thanh toán</button>` : ''}
@@ -389,6 +396,7 @@
   async function luuData() {
     let id = document.getElementById('edit_id').value;
     let rawDate = document.getElementById('ngay').value;
+    let trangThaiVal = document.getElementById('trang_thai').value;
 
     let payload = {
       action: id ? 'edit' : 'add',
@@ -397,14 +405,21 @@
       ten_tho: document.getElementById('ten_tho').value,
       noi_dung: document.getElementById('noi_dung').value,
       tien_cong: document.getElementById('tien_cong').value,
-      trang_thai: document.getElementById('trang_thai').value
+      trang_thai: trangThaiVal,
+      ngay_tt: trangThaiVal === 'Đã thanh toán' ? getTodayString() : ''
     };
 
     if(!payload.ten_tho || !payload.tien_cong) return alert('Vui lòng nhập Tên thợ và Tiền công!');
 
     if (id) {
       let idx = rawData.findIndex(x => x.id.toString() === id.toString());
-      if (idx !== -1) rawData[idx] = payload;
+      if (idx !== -1) {
+        // Giữ lại ngày thanh toán cũ nếu có
+        if (trangThaiVal === 'Đã thanh toán' && rawData[idx].ngay_tt) {
+          payload.ngay_tt = rawData[idx].ngay_tt;
+        }
+        rawData[idx] = payload;
+      }
     } else {
       rawData.push(payload);
     }
@@ -453,6 +468,7 @@
     let item = rawData.find(x => x.id.toString() === id.toString());
     if (item) {
       item.trang_thai = 'Đã thanh toán';
+      item.ngay_tt = getTodayString(); // Ghi nhận ngày bấm lệnh thanh toán
       renderList();
       fetch(SCRIPT_URL, { 
         method: 'POST', 
@@ -476,10 +492,12 @@
 
     if (!confirm(`XÁC NHẬN THANH TOÁN ${selectedBoxes.length} MỤC:\nTỔNG TIỀN: ${tongTien.toLocaleString()} VNĐ?`)) return;
 
+    let todayStr = getTodayString();
     selectedIds.forEach(id => {
       let item = rawData.find(x => x.id.toString() === id.toString());
       if (item) {
         item.trang_thai = 'Đã thanh toán';
+        item.ngay_tt = todayStr; // Ghi nhận ngày bấm lệnh thanh toán
         fetch(SCRIPT_URL, { 
           method: 'POST', 
           mode: 'no-cors',
