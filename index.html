@@ -93,7 +93,6 @@
     .filter-grid .form-group { margin: 0; }
     .filter-grid .form-control { height: 38px; font-size: 13px; padding-left: 32px; }
 
-    /* TIÊU ĐỀ PHÂN NHÓM */
     .section-title {
       font-size: 13px; font-weight: 700; color: var(--text-sub);
       text-transform: uppercase; letter-spacing: 0.5px;
@@ -117,11 +116,11 @@
     .item-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
     .item-price { font-size: 15px; font-weight: 700; color: var(--primary); }
     
-    .badge-box { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-    .badge { padding: 3px 6px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+    .badge-box { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+    .badge { padding: 3px 7px; border-radius: 6px; font-size: 11px; font-weight: 600; }
     .badge-pending { background: #ffe5e5; color: var(--danger); }
     .badge-done { background: #e2f9e5; color: var(--success); }
-    .pay-date-info { font-size: 10px; color: var(--text-sub); font-style: italic; }
+    .pay-date-info { font-size: 11px; color: var(--success); font-weight: 600; background: #f0fff2; padding: 2px 6px; border-radius: 4px; border: 1px solid #c2f0c8; }
 
     .action-btns { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
     .btn-sm { height: 30px; padding: 0 10px; font-size: 12px; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
@@ -173,7 +172,7 @@
 
     <div class="form-group">
       <i class="fa-solid fa-user"></i>
-      <input type="text" id="ten_tho" class="form-control" placeholder="Tên thợ" list="tho_suggestions">
+      <input type="text" id="ten_tho" class="form-control" placeholder="Tên thợ (Ví dụ: Thợ Nam)" list="tho_suggestions">
       <datalist id="tho_suggestions"></datalist>
     </div>
 
@@ -347,14 +346,14 @@
       return matchTho && matchTT;
     });
 
-    // Sắp xếp ngày giảm dần (Mới nhất lên đầu)
+    // Sắp xếp ngày làm việc giảm dần (Mới nhất lên đầu)
     filtered.sort((a, b) => {
       let dateA = getStandardDateStr(a.ngay);
       let dateB = getStandardDateStr(b.ngay);
       return dateB.localeCompare(dateA);
     });
 
-    // TÁCH DỮ LIỆU THÀNH 2 NHÓM: CHƯA THANH TOÁN VÀ ĐÃ THANH TOÁN
+    // TÁCH DỮ LIỆU THÀNH 2 NHÓM
     let pendingList = filtered.filter(x => x.trang_thai !== 'Đã thanh toán');
     let doneList = filtered.filter(x => x.trang_thai === 'Đã thanh toán');
 
@@ -394,7 +393,6 @@
                   <span class="badge badge-pending">Chưa trả</span>
                 </div>
               </div>
-              <!-- HIỂN THỊ ĐẦY ĐỦ NÚT THANH TOÁN, SỬA, XÓA -->
               <div class="action-btns">
                 <button class="btn-sm btn-pay" onclick="xacNhanThanhToanLe('${item.id}', '${item.ten_tho}', ${item.tien_cong})"><i class="fa-solid fa-check"></i> Thanh toán</button>
                 <button class="btn-sm btn-edit" onclick="prepareEdit('${item.id}')"><i class="fa-solid fa-pen"></i> Sửa</button>
@@ -406,13 +404,17 @@
       });
     }
 
-    // 2. NHÓM ĐÃ THANH TOÁN (Ở DƯỚI - BỎ NÚT SỬA & XÓA)
+    // 2. NHÓM ĐÃ THANH TOÁN (Ở DƯỚI) - HIỂN THỊ RÕ NGÀY THANH TOÁN
     if (doneList.length > 0) {
       html += `<div class="section-title done-title"><i class="fa-solid fa-circle-check"></i> Lịch sử đã thanh toán (${doneList.length})</div>`;
       doneList.forEach(item => {
         let tien = Number(item.tien_cong || 0);
+        
+        // Nếu item.ngay_tt trống thì lấy tạm ngày làm việc hoặc hôm nay để tránh mất thông tin
+        let ngayTTVal = item.ngay_tt ? formatDateDisplay(item.ngay_tt) : formatDateDisplay(item.ngay);
+
         html += `
-          <div class="item-card" style="opacity: 0.85;">
+          <div class="item-card">
             <div style="width:20px;"></div>
             <div class="item-content">
               <div class="item-header">
@@ -424,10 +426,9 @@
                 <span class="item-price" style="color: var(--text-main);">${tien.toLocaleString()} VNĐ</span>
                 <div class="badge-box">
                   <span class="badge badge-done">Đã trả</span>
-                  ${item.ngay_tt ? `<span class="pay-date-info">TT: ${formatDateDisplay(item.ngay_tt)}</span>` : ''}
+                  <span class="pay-date-info"><i class="fa-solid fa-hand-holding-dollar"></i> TT: ${ngayTTVal}</span>
                 </div>
               </div>
-              <!-- KHÔNG HIỂN THỊ CÁC NÚT BẤM SỬA / XÓA BÊN DƯỚI -->
             </div>
           </div>
         `;
