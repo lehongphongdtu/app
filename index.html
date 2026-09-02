@@ -93,6 +93,17 @@
     .filter-grid .form-group { margin: 0; }
     .filter-grid .form-control { height: 38px; font-size: 13px; padding-left: 32px; }
 
+    /* TIÊU ĐỀ PHÂN NHÓM */
+    .section-title {
+      font-size: 13px; font-weight: 700; color: var(--text-sub);
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin: 16px 0 8px 0; padding-bottom: 4px;
+      border-bottom: 1.5px solid var(--border);
+      display: flex; align-items: center; gap: 6px;
+    }
+    .section-title.pending-title { color: var(--warning); border-color: rgba(255,149,0,0.3); }
+    .section-title.done-title { color: var(--success); border-color: rgba(52,199,89,0.3); }
+
     .item-card { border-bottom: 1px solid var(--border); padding: 10px 0; display: flex; gap: 10px; align-items: flex-start; }
     .item-card:last-child { border-bottom: none; }
     .item-checkbox { margin-top: 4px; width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
@@ -336,55 +347,92 @@
       return matchTho && matchTT;
     });
 
+    // Sắp xếp ngày giảm dần (Mới nhất lên đầu)
     filtered.sort((a, b) => {
       let dateA = getStandardDateStr(a.ngay);
       let dateB = getStandardDateStr(b.ngay);
       return dateB.localeCompare(dateA);
     });
 
-    let html = '';
+    // TÁCH DỮ LIỆU THÀNH 2 NHÓM: CHƯA THANH TOÁN VÀ ĐÃ THANH TOÁN
+    let pendingList = filtered.filter(x => x.trang_thai !== 'Đã thanh toán');
+    let doneList = filtered.filter(x => x.trang_thai === 'Đã thanh toán');
+
     let tongTien = 0;
     let tongDaTra = 0;
     let tongChuaTra = 0;
 
     filtered.forEach(item => {
       let tien = Number(item.tien_cong || 0);
-      let isDone = item.trang_thai === 'Đã thanh toán';
-
       tongTien += tien;
-      if (isDone) {
+      if (item.trang_thai === 'Đã thanh toán') {
         tongDaTra += tien;
       } else {
         tongChuaTra += tien;
       }
+    });
 
-      html += `
-        <div class="item-card">
-          ${!isDone ? `<input type="checkbox" class="item-checkbox pay-check" value="${item.id}" data-price="${item.tien_cong}" data-tho="${item.ten_tho}">` : '<div style="width:20px;"></div>'}
-          <div class="item-content">
-            <div class="item-header">
-              <span class="tho-name">${item.ten_tho}</span>
-              <span class="item-date"><i class="fa-regular fa-calendar-check"></i> Làm: ${formatDateDisplay(item.ngay)}</span>
-            </div>
-            <div class="item-desc">${item.noi_dung || 'Không có nội dung'}</div>
-            <div class="item-footer">
-              <span class="item-price">${tien.toLocaleString()} VNĐ</span>
-              <div class="badge-box">
-                <span class="badge ${isDone ? 'badge-done' : 'badge-pending'}">
-                  ${isDone ? 'Đã trả' : 'Chưa trả'}
-                </span>
-                ${isDone && item.ngay_tt ? `<span class="pay-date-info">TT: ${formatDateDisplay(item.ngay_tt)}</span>` : ''}
+    let html = '';
+
+    // 1. NHÓM CHƯA THANH TOÁN (Ở TRÊN)
+    if (pendingList.length > 0) {
+      html += `<div class="section-title pending-title"><i class="fa-solid fa-clock"></i> Chưa thanh toán (${pendingList.length})</div>`;
+      pendingList.forEach(item => {
+        let tien = Number(item.tien_cong || 0);
+        html += `
+          <div class="item-card">
+            <input type="checkbox" class="item-checkbox pay-check" value="${item.id}" data-price="${item.tien_cong}" data-tho="${item.ten_tho}">
+            <div class="item-content">
+              <div class="item-header">
+                <span class="tho-name">${item.ten_tho}</span>
+                <span class="item-date"><i class="fa-regular fa-calendar-check"></i> Làm: ${formatDateDisplay(item.ngay)}</span>
+              </div>
+              <div class="item-desc">${item.noi_dung || 'Không có nội dung'}</div>
+              <div class="item-footer">
+                <span class="item-price">${tien.toLocaleString()} VNĐ</span>
+                <div class="badge-box">
+                  <span class="badge badge-pending">Chưa trả</span>
+                </div>
+              </div>
+              <!-- HIỂN THỊ ĐẦY ĐỦ NÚT THANH TOÁN, SỬA, XÓA -->
+              <div class="action-btns">
+                <button class="btn-sm btn-pay" onclick="xacNhanThanhToanLe('${item.id}', '${item.ten_tho}', ${item.tien_cong})"><i class="fa-solid fa-check"></i> Thanh toán</button>
+                <button class="btn-sm btn-edit" onclick="prepareEdit('${item.id}')"><i class="fa-solid fa-pen"></i> Sửa</button>
+                <button class="btn-sm btn-delete" onclick="xoaItem('${item.id}')"><i class="fa-solid fa-trash"></i> Xóa</button>
               </div>
             </div>
-            <div class="action-btns">
-              ${!isDone ? `<button class="btn-sm btn-pay" onclick="xacNhanThanhToanLe('${item.id}', '${item.ten_tho}', ${item.tien_cong})"><i class="fa-solid fa-check"></i> Thanh toán</button>` : ''}
-              <button class="btn-sm btn-edit" onclick="prepareEdit('${item.id}')"><i class="fa-solid fa-pen"></i> Sửa</button>
-              <button class="btn-sm btn-delete" onclick="xoaItem('${item.id}')"><i class="fa-solid fa-trash"></i> Xóa</button>
+          </div>
+        `;
+      });
+    }
+
+    // 2. NHÓM ĐÃ THANH TOÁN (Ở DƯỚI - BỎ NÚT SỬA & XÓA)
+    if (doneList.length > 0) {
+      html += `<div class="section-title done-title"><i class="fa-solid fa-circle-check"></i> Lịch sử đã thanh toán (${doneList.length})</div>`;
+      doneList.forEach(item => {
+        let tien = Number(item.tien_cong || 0);
+        html += `
+          <div class="item-card" style="opacity: 0.85;">
+            <div style="width:20px;"></div>
+            <div class="item-content">
+              <div class="item-header">
+                <span class="tho-name">${item.ten_tho}</span>
+                <span class="item-date"><i class="fa-regular fa-calendar-check"></i> Làm: ${formatDateDisplay(item.ngay)}</span>
+              </div>
+              <div class="item-desc">${item.noi_dung || 'Không có nội dung'}</div>
+              <div class="item-footer">
+                <span class="item-price" style="color: var(--text-main);">${tien.toLocaleString()} VNĐ</span>
+                <div class="badge-box">
+                  <span class="badge badge-done">Đã trả</span>
+                  ${item.ngay_tt ? `<span class="pay-date-info">TT: ${formatDateDisplay(item.ngay_tt)}</span>` : ''}
+                </div>
+              </div>
+              <!-- KHÔNG HIỂN THỊ CÁC NÚT BẤM SỬA / XÓA BÊN DƯỚI -->
             </div>
           </div>
-        </div>
-      `;
-    });
+        `;
+      });
+    }
 
     document.getElementById('val_tong').innerText = `${tongTien.toLocaleString()} đ`;
     document.getElementById('val_da_tra').innerText = `${tongDaTra.toLocaleString()} đ`;
@@ -414,7 +462,6 @@
     if (id) {
       let idx = rawData.findIndex(x => x.id.toString() === id.toString());
       if (idx !== -1) {
-        // Giữ lại ngày thanh toán cũ nếu có
         if (trangThaiVal === 'Đã thanh toán' && rawData[idx].ngay_tt) {
           payload.ngay_tt = rawData[idx].ngay_tt;
         }
@@ -468,7 +515,7 @@
     let item = rawData.find(x => x.id.toString() === id.toString());
     if (item) {
       item.trang_thai = 'Đã thanh toán';
-      item.ngay_tt = getTodayString(); // Ghi nhận ngày bấm lệnh thanh toán
+      item.ngay_tt = getTodayString();
       renderList();
       fetch(SCRIPT_URL, { 
         method: 'POST', 
@@ -497,7 +544,7 @@
       let item = rawData.find(x => x.id.toString() === id.toString());
       if (item) {
         item.trang_thai = 'Đã thanh toán';
-        item.ngay_tt = todayStr; // Ghi nhận ngày bấm lệnh thanh toán
+        item.ngay_tt = todayStr;
         fetch(SCRIPT_URL, { 
           method: 'POST', 
           mode: 'no-cors',
